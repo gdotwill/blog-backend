@@ -1,6 +1,6 @@
 import express from "express";
-import authRoutes from "./routes/auth.js";
-import postRoutes from "./routes/posts.js";
+import authRoutes from "./src/routes/auth.js";
+import postRoutes from "./src/routes/posts.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import cors from "cors";
@@ -55,7 +55,7 @@ app.get('/', (req,res) => {
   res.send('Hello')
 })
 
-// Start the server and listen on port 8800
+// Start the server and listen on port 3000
 app.listen(port, () => {
   console.log("Connected...");
 });
