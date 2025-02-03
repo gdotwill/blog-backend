@@ -8,6 +8,8 @@ import cors from "cors";
 // Create an instance of the Express application
 const app = express();
 
+const port = process.env.PORT || 3000;
+
 // Use the built-in JSON middleware to parse incoming requests
 app.use(express.json());
 // Use the cookieParser middleware to parse cookies from incoming requests
@@ -54,6 +56,8 @@ app.get('/', (req,res) => {
 })
 
 // Start the server and listen on port 8800
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log("Connected...");
 });
+
+export default app;
