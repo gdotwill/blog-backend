@@ -24,7 +24,7 @@ const pool = new Pool({
   connectionString
 })
  
-// console.log("DB", await pool.query('SELECT * from staff'))
+//console.log("DB", await pool.query('SELECT * from users'))
  
 const db = new Client({
   connectionString
@@ -32,8 +32,8 @@ const db = new Client({
 
 await db.connect()
  
-// console.log(await db.query('SELECT * from staff'))
+//console.log(await db.query('SELECT * from users'))
 
-export const dbs = (text, params) => db.query(text, params);
+export const query = (text, params) => db.query(text, params);
  
 // await db.end()

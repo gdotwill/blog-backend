@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./src/routes/auth.js";
 import postRoutes from "./src/routes/posts.js";
+import userRoutes from "./src/routes/users.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import cors from "cors";
@@ -50,6 +51,7 @@ app.post("/api/upload", upload.single("file"), function (req, res) {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/users", userRoutes);
 
 app.get('/', (req,res) => {
   res.send('Hello')

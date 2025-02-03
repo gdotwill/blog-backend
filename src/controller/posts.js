@@ -1,24 +1,39 @@
-import { dbs } from "../db.js";
+import { query } from "../db.js";
 import jwt from "jsonwebtoken";
+import * as postService from "../services/postServices.js";
 
-// Retrieves posts from a database
-export const getPosts = (req, res) => {
-  // If the query string includes a category parameter,
-  // select all posts from the given category. Otherwise,
-  // select all posts.
-  const q = req.query.cat
-    ? "SELECT * FROM posts WHERE cat=?"
-    : "SELECT * FROM posts";
+//Retrieves posts from a database
+// export const getPosts = async (req, res) => {
+//   try {
+//     const q = req.query.cat
+//     ? "SELECT * FROM posts WHERE cat=?"
+//     : "SELECT * FROM posts";
 
-  // Use the database object to query the database with the
-  // appropriate SQL statement and any necessary parameters.
-  dbs.query(q, [req.query.cat], (err, data) => {
-    // If there's an error, send a 500 status code and the error message
-    if (err) return res.status(500).send(err);
 
-    // Otherwise, send a 200 status code and the data as JSON
-    return res.status(200).json(data);
-  });
+//     await query(q, [req.query.cat], (err, data) => {
+
+//     if (err) return res.status(500).send(err);
+
+//     return res.status(200).json(data);
+//   });
+    
+//   } catch (error) {
+//     console.log('BAD', error)
+    
+//   }
+
+
+// };
+
+
+export const getPosts = async (req, res) => {
+  try {
+      const posts = await postService.getPosts();
+      res.status(200).json(posts);
+  } catch (err) { 
+      console.error('Error fetching users:', err);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
 };
 
 // Retrieves a single post from the database
@@ -30,7 +45,7 @@ export const getPost = (req, res) => {
 
   // Use the database object to query the database for the post with
   // the given ID, and any necessary parameters.
-  dbs.query(q, [req.params.id], (err, data) => {
+  query(q, [req.params.id], (err, data) => {
     // If there's an error, send a 500 status code and the error message
     if (err) return res.status(500).json(err);
 
@@ -66,7 +81,7 @@ export const addPost = (req, res) => {
     ];
 
     // Use the database object to execute the SQL query with the values array
-    dbs.query(q, [values], (err, data) => {
+    query(q, [values], (err, data) => {
       // If there's an error, return a 500 status code and the error message
       if (err) return res.status(500).json(err);
 
@@ -95,7 +110,7 @@ export const deletePost = (req, res) => {
     const q = "DELETE FROM posts WHERE `id` = ? AND `uid` = ?";
 
     // Execute the SQL query with the postId and userInfo.id as parameters
-    dbs.query(q, [postId, userInfo.id], (err, data) => {
+    query(q, [postId, userInfo.id], (err, data) => {
       // If there's an error, return a 403 status code and an error message
       if (err) return res.status(403).json("You can delete only your post");
 
@@ -128,7 +143,7 @@ export const updatePost = (req, res) => {
     const values = [req.body.title, req.body.description, req.body.img, req.body.cat];
 
     // Execute the query using the values and post ID. If there's an error, return an error response. Otherwise, return a success response.
-    dbs.query(q, [...values, postId, userInfo.id], (err, data) => {
+    query(q, [...values, postId, userInfo.id], (err, data) => {
       if (err) return res.status(500).json(err);
       return res.json("Post has been updated.");
     });

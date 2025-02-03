@@ -1,4 +1,4 @@
-import { dbs } from "../db.js";
+import { query } from "../db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -8,7 +8,7 @@ export const register = (req, res) => {
   // SQL query to check if the user already exists in the database
   const query = "SELECT * FROM users WHERE email = ? OR username = ?";
   // Execute the query with the user's email and username as parameters
-  dbs.query(query, [req.body.email, req.body.username], (err, data) => {
+    query(query, [req.body.email, req.body.username], (err, data) => {
     // Check for errors
     if (err) return res.json(err);
     // If the query returns data, it means the user already exists, return a 409 conflict status code
@@ -26,7 +26,7 @@ export const register = (req, res) => {
     const values = [req.body.username, req.body.email, hash];
 
     // Execute the query with the values as parameters
-    dbs.query(query, [values], (err, data) => {
+      query(query, [values], (err, data) => {
       // Check for errors
       if (err) return res.json(err);
       // If successful, return a 200 status code with a message
@@ -41,7 +41,7 @@ export const login = (req, res) => {
   const query = "SELECT * FROM users WHERE username = ?";
 
   // Execute the query with the provided username
-  dbs.query(query, [req.body.username], (err, data) => {
+    query(query, [req.body.username], (err, data) => {
     // Handle DB errors
     if (err) return res.json(err);
 
