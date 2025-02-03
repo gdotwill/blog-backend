@@ -1,4 +1,4 @@
-import { dbs } from "../db.js";
+import { dbs } from "../../db.js";
 import jwt from "jsonwebtoken";
 
 // Retrieves posts from a database
