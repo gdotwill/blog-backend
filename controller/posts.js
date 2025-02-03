@@ -1,4 +1,4 @@
-import { db } from "../db.js";
+import { dbs } from "../db.js";
 import jwt from "jsonwebtoken";
 
 // Retrieves posts from a database
@@ -12,7 +12,7 @@ export const getPosts = (req, res) => {
 
   // Use the database object to query the database with the
   // appropriate SQL statement and any necessary parameters.
-  db.query(q, [req.query.cat], (err, data) => {
+  dbs.query(q, [req.query.cat], (err, data) => {
     // If there's an error, send a 500 status code and the error message
     if (err) return res.status(500).send(err);
 
@@ -30,7 +30,7 @@ export const getPost = (req, res) => {
 
   // Use the database object to query the database for the post with
   // the given ID, and any necessary parameters.
-  db.query(q, [req.params.id], (err, data) => {
+  dbs.query(q, [req.params.id], (err, data) => {
     // If there's an error, send a 500 status code and the error message
     if (err) return res.status(500).json(err);
 
@@ -66,7 +66,7 @@ export const addPost = (req, res) => {
     ];
 
     // Use the database object to execute the SQL query with the values array
-    db.query(q, [values], (err, data) => {
+    dbs.query(q, [values], (err, data) => {
       // If there's an error, return a 500 status code and the error message
       if (err) return res.status(500).json(err);
 
@@ -95,7 +95,7 @@ export const deletePost = (req, res) => {
     const q = "DELETE FROM posts WHERE `id` = ? AND `uid` = ?";
 
     // Execute the SQL query with the postId and userInfo.id as parameters
-    db.query(q, [postId, userInfo.id], (err, data) => {
+    dbs.query(q, [postId, userInfo.id], (err, data) => {
       // If there's an error, return a 403 status code and an error message
       if (err) return res.status(403).json("You can delete only your post");
 
@@ -128,7 +128,7 @@ export const updatePost = (req, res) => {
     const values = [req.body.title, req.body.description, req.body.img, req.body.cat];
 
     // Execute the query using the values and post ID. If there's an error, return an error response. Otherwise, return a success response.
-    db.query(q, [...values, postId, userInfo.id], (err, data) => {
+    dbs.query(q, [...values, postId, userInfo.id], (err, data) => {
       if (err) return res.status(500).json(err);
       return res.json("Post has been updated.");
     });
