@@ -2,29 +2,6 @@ import pool from "../db.js";
 import jwt from "jsonwebtoken";
 import * as postService from "../services/postServices.js";
 
-//Retrieves posts from a database
-// export const getPosts = async (req, res) => {
-//   try {
-//     const q = req.query.cat
-//     ? "SELECT * FROM posts WHERE cat=?"
-//     : "SELECT * FROM posts";
-
-
-//     await query(q, [req.query.cat], (err, data) => {
-
-//     if (err) return res.status(500).send(err);
-
-//     return res.status(200).json(data);
-//   });
-    
-//   } catch (error) {
-//     console.log('BAD', error)
-    
-//   }
-
-
-// };
-
 
 export const getPosts = async (req, res) => {
   try {
@@ -33,6 +10,19 @@ export const getPosts = async (req, res) => {
   } catch (err) { 
       console.error('Error fetching users:', err);
       res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
+export const addPost = async (req, res) => {
+
+  const { title, description, cat, img } = req.body;
+  const id = req.user.id;
+
+  try {
+    const newBlog = await postService.addPost(id, title, description, cat, img);
+    res.status(201).json({ message: 'Blog created successfully!', blog: newBlog });
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
   }
 };
 
@@ -55,41 +45,41 @@ export const getPost = (req, res) => {
 };
 
 // Adds a new post to the database
-export const addPost = (req, res) => {
-  // Check if the user is authenticated by checking for a token in the cookies
-  const token = req.cookies.access_token;
-  if (!token) return res.status(401).json("Not authenticated!");
+// export const addPost = (req, res) => {
+//   // Check if the user is authenticated by checking for a token in the cookies
+//   const token = req.cookies.access_token;
+//   if (!token) return res.status(401).json("Not authenticated!");
 
-  // Verify the token using the secret key
-  jwt.verify(token, "jwtkey", (err, userInfo) => {
-    // If there's an error, the token is not valid
-    if (err) return res.status(403).json("Token is not valid!");
+//   // Verify the token using the secret key
+//   jwt.verify(token, "jwtkey", (err, userInfo) => {
+//     // If there's an error, the token is not valid
+//     if (err) return res.status(403).json("Token is not valid!");
 
-    // Otherwise, construct the SQL query to insert a new post into the database
-    const q =
-      "INSERT INTO posts(`title`, `description`, `img`, `cat`, `date`,`uid`) VALUES (?)";
+//     // Otherwise, construct the SQL query to insert a new post into the database
+//     const q =
+//       "INSERT INTO posts(`title`, `description`, `date`,`uid`) VALUES (?)";
 
-    // Define an array of values to be inserted into the database, including the
-    // post data from the request body and the user ID from the decoded token
-    const values = [
-      req.body.title,
-      req.body.description,
-      req.body.img,
-      req.body.cat,
-      req.body.date,
-      userInfo.id,
-    ];
+//     // Define an array of values to be inserted into the database, including the
+//     // post data from the request body and the user ID from the decoded token
+//     const values = [
+//       req.body.title,
+//       req.body.description,
+//       // req.body.img,
+//       // req.body.cat,
+//       req.body.date,
+//       userInfo.id,
+//     ];
 
-    // Use the database object to execute the SQL query with the values array
-    query(q, [values], (err, data) => {
-      // If there's an error, return a 500 status code and the error message
-      if (err) return res.status(500).json(err);
+//     // Use the database object to execute the SQL query with the values array
+//     query(q, [values], (err, data) => {
+//       // If there's an error, return a 500 status code and the error message
+//       if (err) return res.status(500).json(err);
 
-      // Otherwise, return a 200 status code and a success message
-      return res.json("Post has been created.");
-    });
-  });
-};
+//       // Otherwise, return a 200 status code and a success message
+//       return res.json("Post has been created.");
+//     });
+//   });
+// };
 
 // Deletes a post from the database
 export const deletePost = (req, res) => {

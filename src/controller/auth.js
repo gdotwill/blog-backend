@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from '../db.js'; 
 
-
 // Register a new user
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
@@ -41,30 +40,24 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { username, password } = req.body;
 
+  if (!username || !password) {
+    return res.status(400).json({ message: 'username and password are required.' });
+  }
+
   try {
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json('User not found');
-    }
-
     const user = result.rows[0];
 
-    // Check password
-    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json('Invalid credentials');
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    // Create JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
+    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // Send cookie with JWT
-    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
-    return res.status(200).json({ username: user.username, email: user.email });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json('Server error');
+    res.json({ message: 'Login successful', token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Something went wrong. Please try again.' });
   }
 };
 
@@ -82,3 +75,6 @@ export const logout = (req, res) => {
     res.status(400).json({ message: 'No token provided' });
   }
 };
+
+
+

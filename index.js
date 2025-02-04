@@ -5,6 +5,8 @@ import userRoutes from "./src/routes/users.js";
 import cookieParser from "cookie-parser";
 import multer from "multer";
 import cors from "cors";
+import authMiddleware from './src/controller/authMiddleware.js'; // Import the middleware
+import pool from './src/db.js'; 
 
 // Create an instance of the Express application
 const app = express();
@@ -22,13 +24,68 @@ app.use((req, res, next) => {
 
 const port = process.env.PORT || 3000;
 
-app.use(cors(corsOptions)); // Enable CORS with the options
+app.use(cors(corsOptions)); 
 
 app.use(express.json());
 
 app.use(cookieParser());
 
 
+// Configuration object for setting destination and filename for the uploaded file
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Set the destination folder where the uploaded file should be stored
+    cb(null, "./public/upload");
+  },
+  filename: function (req, file, cb) {
+    // Set the filename of the uploaded file
+    cb(null, Date.now() + file.originalname);
+  },
+});
+
+// Set up multer middleware with the defined storage configuration
+const upload = multer({ storage });
+
+// Set up a POST endpoint for handling file uploads
+app.post("/api/upload", upload.single("file"), function (req, res) {
+  // Get the uploaded file
+  const file = req.file;
+  // Send a response with the filename of the uploaded file
+  res.status(200).json(file.filename);
+});
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/users", userRoutes);
+
+app.get('/', (req,res) => {
+  res.send('Hello')
+})
+
+app.get('/api/user', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;  // Extract user ID from decoded token
+    const result = await pool.query('SELECT id, username FROM users WHERE id = $1', [userId]);
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Something went wrong. Please try again.' });
+  }
+});
+
+// Start the server and listen on port 3000
+app.listen(port, () => {
+  console.log("Connected...");
+});
+
+export default app;
 
 
 // app.use(cors());
@@ -65,46 +122,3 @@ app.use(cookieParser());
 //   optionSuccessStatus:200
 // }
 // app.use(cors(corsOptions));
-
-
-
-
-
-// Configuration object for setting destination and filename for the uploaded file
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Set the destination folder where the uploaded file should be stored
-    cb(null, "../client/public/upload");
-  },
-  filename: function (req, file, cb) {
-    // Set the filename of the uploaded file
-    cb(null, Date.now() + file.originalname);
-  },
-});
-
-// Set up multer middleware with the defined storage configuration
-const upload = multer({ storage });
-
-// Set up a POST endpoint for handling file uploads
-app.post("/api/upload", upload.single("file"), function (req, res) {
-  // Get the uploaded file
-  const file = req.file;
-  // Send a response with the filename of the uploaded file
-  res.status(200).json(file.filename);
-});
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/posts", postRoutes);
-app.use("/api/users", userRoutes);
-
-app.get('/', (req,res) => {
-  res.send('Hello')
-})
-
-// Start the server and listen on port 3000
-app.listen(port, () => {
-  console.log("Connected...");
-});
-
-export default app;
