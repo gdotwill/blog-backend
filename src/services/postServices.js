@@ -1,8 +1,8 @@
-import { query } from "../db.js";
+import pool from "../db.js";
 
 export const getPosts = async() => {
     try {
-        const {rows} = await query('SELECT * FROM posts');
+        const {rows} = await pool.query('SELECT * FROM posts');
         // console.log('BBBBBB', rows)
         return rows;
         
@@ -18,7 +18,7 @@ export const getPosts = async() => {
 // : "SELECT * FROM posts";
 
 
-// await query(q, [req.query.cat], (err, data) => {
+// await pool.query(q, [req.query.cat], (err, data) => {
 
 // if (err) return res.status(500).send(err);
 

@@ -1,87 +1,84 @@
-import { query } from "../db.js";
+// import pool from "../db.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import pool from '../db.js'; 
 
-// This function is responsible for registering a new user in the database
-export const register = (req, res) => {
-  // CHECK EXISTING USER
-  // SQL query to check if the user already exists in the database
-  const query = "SELECT * FROM users WHERE email = ? OR username = ?";
-  // Execute the query with the user's email and username as parameters
-    query(query, [req.body.email, req.body.username], (err, data) => {
-    // Check for errors
-    if (err) return res.json(err);
-    // If the query returns data, it means the user already exists, return a 409 conflict status code
-    if (data.length) return res.status(409).json("User already exists!");
 
-    // Hash the password and create a user
-    // Generate a salt value
-    const salt = bcrypt.genSaltSync(10);
-    // Generate a hash value using the password and the salt value
-    const hash = bcrypt.hashSync(req.body.password, salt);
+// Register a new user
+export const register = async (req, res) => {
+  const { username, email, password } = req.body;
 
-    // SQL query to insert the new user in the database
-    const query = "INSERT INTO users(`username`,`email`,`password`) VALUES (?)";
-    // Define the values to be inserted in the query, including the hashed password
-    const values = [req.body.username, req.body.email, hash];
+  // Check if user exists
+  const existingUserQuery = 'SELECT * FROM users WHERE email = $1';
+  const existingUserResult = await pool.query(existingUserQuery, [email]);
 
-    // Execute the query with the values as parameters
-      query(query, [values], (err, data) => {
-      // Check for errors
-      if (err) return res.json(err);
-      // If successful, return a 200 status code with a message
-      return res.status(200).json("User has been created.");
+  if (existingUserResult.rows.length > 0) {
+    return res.status(400).json({ message: 'User already exists' });
+  }
+
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Insert new user into database
+  const insertQuery = 'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *';
+  try {
+    const result = await pool.query(insertQuery, [username, email, hashedPassword]);
+    const user = result.rows[0];
+
+    // Generate JWT
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(201).json({
+      token,
+      user: { username: user.username, email: user.email },
     });
-  });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
 };
 
-// This function handles user login
-export const login = (req, res) => {
-  // SQL query to check if the user exists in the DB
-  const query = "SELECT * FROM users WHERE username = ?";
+// Login user
+export const login = async (req, res) => {
+  const { username, password } = req.body;
 
-  // Execute the query with the provided username
-    query(query, [req.body.username], (err, data) => {
-    // Handle DB errors
-    if (err) return res.json(err);
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
-    // If no user is found, return an error
-    if (data.length === 0) return res.status(404).json("User not found!");
+    if (result.rows.length === 0) {
+      return res.status(404).json('User not found');
+    }
 
-    // Check if the password is correct
-    const isPasswordCorrect = bcrypt.compareSync(
-      req.body.password,
-      data[0].password
-    );
+    const user = result.rows[0];
 
-    // If the password is incorrect, return an error
-    if (!isPasswordCorrect)
-      return res.status(400).json("Wrong username or password!");
+    // Check password
+    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json('Invalid credentials');
+    }
 
-    // If the login is successful, create a JSON web token
-    const token = jwt.sign({ id: data[0].id }, "jwtkey");
+    // Create JWT token
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION });
 
-    // Remove the password from the user data
-    const { password, ...other } = data[0];
-
-    // Set the token as a http-only cookie and send user data as response
-    res
-      .cookie("access_token", token, {
-        httpOnly: true,
-      })
-      .status(200)
-      .json(other);
-  });
+    // Send cookie with JWT
+    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'None' });
+    return res.status(200).json({ username: user.username, email: user.email });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json('Server error');
+  }
 };
 
-// This function handles user logout
+// Logout user
 export const logout = (req, res) => {
-  // Clear the access_token cookie and send a success message
-  res
-    .clearCookie("access_token", {
-      sameSite: "none",
-      secure: true,
-    })
-    .status(200)
-    .json("User has been logged out.");
+  const token = req.headers['authorization']?.split(' ')[1]; // Assuming the token is sent in the Authorization header
+  
+  // Optionally, you could add the token to a blacklist (e.g., in a database or in-memory cache)
+  if (token) {
+    // Save the token in a blacklist (example: Redis or database)
+    // Example: redisClient.set(token, 'blacklisted');
+    
+    res.json({ message: 'Logged out successfully' });
+  } else {
+    res.status(400).json({ message: 'No token provided' });
+  }
 };

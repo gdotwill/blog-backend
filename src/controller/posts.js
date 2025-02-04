@@ -1,4 +1,4 @@
-import { query } from "../db.js";
+import pool from "../db.js";
 import jwt from "jsonwebtoken";
 import * as postService from "../services/postServices.js";
 

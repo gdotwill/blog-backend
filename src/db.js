@@ -1,39 +1,17 @@
-// import env from "dotenv"
-// env.config();
+// import { Pool } from 'pg';
+import pg from 'pg';
+const { Pool, Client } = pg;
 
-// import mysql from "mysql2";
+import dotenv from 'dotenv';
+dotenv.config();
 
-// export const db = mysql.createConnection({
-//   host: "localhost",
-//   user: "root",
-//   password: "Rottenapple1",
-//   database: "blog_app",
-// });
 
-// console.log('DB', db)
-
-import env from "dotenv"
-env.config();
-
-import pg from 'pg'
-const { Pool, Client } = pg
-
-const connectionString = process.env.PG_URL
- 
+// PostgreSQL connection pool using connection string
 const pool = new Pool({
-  connectionString
-})
- 
-//console.log("DB", await pool.query('SELECT * from users'))
- 
-const db = new Client({
-  connectionString
-})
+  connectionString: process.env.PG_URL, // Use connection string from .env file
+  ssl: {
+    rejectUnauthorized: false, // Set this to true if you have an SSL-enabled DB connection
+  },
+});
 
-await db.connect()
- 
-//console.log(await db.query('SELECT * from users'))
-
-export const query = (text, params) => db.query(text, params);
- 
-// await db.end()
+export default pool;

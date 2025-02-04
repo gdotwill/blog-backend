@@ -9,21 +9,66 @@ import cors from "cors";
 // Create an instance of the Express application
 const app = express();
 
+const corsOptions = {
+  origin: 'http://localhost:3001',  // Frontend URL
+  credentials: true,  // Allow cookies and authorization headers
+};
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+
 const port = process.env.PORT || 3000;
 
-// Use the built-in JSON middleware to parse incoming requests
+app.use(cors(corsOptions)); // Enable CORS with the options
+
 app.use(express.json());
-// Use the cookieParser middleware to parse cookies from incoming requests
+
 app.use(cookieParser());
 
-app.use(cors());
 
-app.use(cors({
-  origin: true,
-  methods: 'GET, POST, OPTIONS, PUT, DELETE, PATCH',
-  allowedHeaders: 'Origin, Content-Type, Accept, Authorization, X-Request-With, Content-Range, Content-Disposition, Content-Description',
-  credentials: true 
-}));
+
+
+// app.use(cors());
+
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Allow React to talk to the server
+
+
+// const corsOptions = {
+//   origin: 'http://localhost:3000/api/auth/login',
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+//   optionsSuccessStatus: 204,
+// };
+
+// app.use(cors(corsOptions));  // Use cors middleware
+
+// app.use(cors());
+
+// app.use(cors({
+//   origin: true,
+//   methods: 'GET, POST, OPTIONS, PUT, DELETE, PATCH',
+//   allowedHeaders: 'Origin, Content-Type, Accept, Authorization, X-Request-With, Content-Range, Content-Disposition, Content-Description',
+//   credentials: true 
+// }));
+
+// app.use(cors({ origin: 'http://localhost:3000/api/auth/login', credentials: true })); // Allow React to talk to the server
+// app.use(cors({ origin: 'http://localhost:3000/auth/login', credentials: true })); // Allow React to talk to the server
+// app.use(cors({ origin: 'http://localhost:3000', credentials: true })); // Allow React to talk to the server
+
+
+// const corsOptions ={
+//   origin:'http://localhost:3000/api/auth/login', 
+//   credentials:true,            //access-control-allow-credentials:true
+//   optionSuccessStatus:200
+// }
+// app.use(cors(corsOptions));
+
+
+
+
 
 // Configuration object for setting destination and filename for the uploaded file
 const storage = multer.diskStorage({
