@@ -2,7 +2,6 @@ import pool from "../db.js";
 import jwt from "jsonwebtoken";
 import * as postService from "../services/postServices.js";
 
-
 export const getPosts = async (req, res) => {
   try {
       const posts = await postService.getPosts();
@@ -13,36 +12,44 @@ export const getPosts = async (req, res) => {
   }
 };
 
-export const addPost = async (req, res) => {
+export const getPost = async (req, res) => {
+  const { id } = req.params;  // Get the ID from the URL parameter
 
-  const { title, description, cat, img } = req.body;
-  const id = req.user.id;
+  console.log('Request Params:', req.params);
+  
 
   try {
-    const newBlog = await postService.addPost(id, title, description, cat, img);
+    console.log('Fetching post with ID:', id); 
+    const post = await postService.getPost(id);
+
+    console.log("K", post)
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found.' });
+    }
+
+    return res.status(200).json(post);  // Return the post data
+  } catch (err) {
+    console.error('Error fetching post:', err);
+    console.log("NLLLL")
+    return res.status(500).json({ error: 'Error retrieving post.' });
+  }
+};
+
+export const addPost = async (req, res) => {
+
+  const { title, description, cat } = req.body;
+
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
+  try {
+    const newBlog = await postService.addPost(title, description, cat, imageUrl);
     res.status(201).json({ message: 'Blog created successfully!', blog: newBlog });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });
   }
 };
 
-// Retrieves a single post from the database
-export const getPost = (req, res) => {
-  // Select specific fields from both the users and posts table,
-  // and join them based on the user ID of the post author.
-  const q =
-    "SELECT p.id, `username`, `title`, `description`, p.img, u.img AS userImg, `cat`,`date` FROM users u JOIN posts p ON u.id = p.uid WHERE p.id = ?";
-
-  // Use the database object to query the database for the post with
-  // the given ID, and any necessary parameters.
-  query(q, [req.params.id], (err, data) => {
-    // If there's an error, send a 500 status code and the error message
-    if (err) return res.status(500).json(err);
-
-    // Otherwise, send a 200 status code and the first item in the data array as JSON
-    return res.status(200).json(data[0]);
-  });
-};
 
 // Adds a new post to the database
 // export const addPost = (req, res) => {

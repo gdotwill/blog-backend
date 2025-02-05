@@ -3,13 +3,16 @@ import authRoutes from "./src/routes/auth.js";
 import postRoutes from "./src/routes/posts.js";
 import userRoutes from "./src/routes/users.js";
 import cookieParser from "cookie-parser";
-import multer from "multer";
 import cors from "cors";
 import authMiddleware from './src/controller/authMiddleware.js'; // Import the middleware
 import pool from './src/db.js'; 
+import bodyParser from 'body-parser';
 
 // Create an instance of the Express application
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 const corsOptions = {
   origin: 'http://localhost:3001',  // Frontend URL
@@ -28,31 +31,16 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));  // To parse URL-encoded request bodies
+
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+
 app.use(cookieParser());
 
-
-// Configuration object for setting destination and filename for the uploaded file
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Set the destination folder where the uploaded file should be stored
-    cb(null, "./public/upload");
-  },
-  filename: function (req, file, cb) {
-    // Set the filename of the uploaded file
-    cb(null, Date.now() + file.originalname);
-  },
-});
-
-// Set up multer middleware with the defined storage configuration
-const upload = multer({ storage });
-
-// Set up a POST endpoint for handling file uploads
-app.post("/api/upload", upload.single("file"), function (req, res) {
-  // Get the uploaded file
-  const file = req.file;
-  // Send a response with the filename of the uploaded file
-  res.status(200).json(file.filename);
-});
+app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -86,6 +74,15 @@ app.listen(port, () => {
 });
 
 export default app;
+
+
+
+
+
+
+
+
+
 
 
 // app.use(cors());

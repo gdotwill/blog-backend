@@ -13,18 +13,38 @@ export const getPosts = async() => {
 
 }
 
-export const addPost = async(id, title, description, cat) => {
-    if (!title || !description || !cat) {
-        throw { status: 400, message: 'Title and description are required.' };
-    }
-    
-    const result = await pool.query(
-    'INSERT INTO blogs (id, title, description, cat, img) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-    [id, title, description, cat, img]
-    );
-    console.log("ZZ", result)
+export const getPost = async(id) => {
+    const query = 'SELECT * FROM posts WHERE id = $1';
 
-    return result.rows[0];  // Return the newly created blog
+    try {   
+        console.log('Executing query with ID:', id);   
+        const result = await pool.query(query, [id]);
+        console.log("AA", result)
+        return result.rows[0];  // Return the first ma
+        
+    } catch (error) {
+        console.log('NO USER', error)
+        
+    }
+
+}
+
+export const addPost = async(title, description, cat, imageUrl) => {
+    const query = `
+    INSERT INTO posts (title, description, cat, img)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *; 
+  `;
+
+  try {
+    const result = await pool.query(query, [title, description, cat, imageUrl]);
+    // console.log('TP', result.rows[0])
+    
+    return result.rows[0]; 
+  } catch (err) {
+    console.error('Error saving post:', err);
+    throw err;  // Propagate error to controller
+  }
 
 }
 
