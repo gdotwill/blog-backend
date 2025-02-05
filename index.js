@@ -2,6 +2,7 @@ import express from "express";
 import authRoutes from "./src/routes/auth.js";
 import postRoutes from "./src/routes/posts.js";
 import usersRoutes from "./src/routes/users.js";
+import userRoutes from "./src/routes/user.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authMiddleware from './src/controller/authMiddleware.js'; // Import the middleware
@@ -46,6 +47,7 @@ app.use('/uploads', express.static('uploads')); // Serve uploaded images
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/users", usersRoutes);
+// app.use("/api/user", userRoutes);
 
 app.get('/', (req,res) => {
   res.send('Hello')

@@ -1,6 +1,6 @@
-import * as userService from "../services/usersServices.js";
+import * as userService from "../services/userServices.js";
 
-export const getUsers = async (req, res) => {
+export const getUser = async (req, res) => {
     try {
         const users = await userService.getUser();
         res.status(200).json(users);
