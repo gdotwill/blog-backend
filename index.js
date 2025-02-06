@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 
 const corsOptions = {
   // origin: 'http://localhost:3001',  // Frontend URL
-  origin: 'https://blog-woad-three-52.vercel.app/',  // Frontend URL
+  origin: 'https://blog-woad-three-52.vercel.app',  // Frontend URL
   credentials: true,  // Allow cookies and authorization headers
 };
 
