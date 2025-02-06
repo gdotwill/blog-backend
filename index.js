@@ -5,7 +5,7 @@ import usersRoutes from "./src/routes/users.js";
 import userRoutes from "./src/routes/user.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import authMiddleware from './src/controller/authMiddleware.js'; // Import the middleware
+import authMiddleware from './src/controller/authMiddleware.js'; 
 import pool from './src/db.js'; 
 import bodyParser from 'body-parser';
 
@@ -34,10 +34,8 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));  // To parse URL-encoded request bodies
 
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 
 app.use(cookieParser());
 

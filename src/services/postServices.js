@@ -29,15 +29,15 @@ export const getPost = async(id) => {
 
 }
 
-export const addPost = async(title, description, cat, imageUrl) => {
+export const addPost = async(title, description, category, imageUrl) => {
     const query = `
-    INSERT INTO posts (title, description, cat, img)
+    INSERT INTO posts (title, description, category, img)
     VALUES ($1, $2, $3, $4)
     RETURNING *; 
   `;
 
   try {
-    const result = await pool.query(query, [title, description, cat, imageUrl]);
+    const result = await pool.query(query, [title, description, category, imageUrl]);
     // console.log('TP', result.rows[0])
     
     return result.rows[0]; 
@@ -51,11 +51,11 @@ export const addPost = async(title, description, cat, imageUrl) => {
 
 
 // const q = req.query.cat
-// ? "SELECT * FROM posts WHERE cat=?"
+// ? "SELECT * FROM posts WHERE category=?"
 // : "SELECT * FROM posts";
 
 
-// await pool.query(q, [req.query.cat], (err, data) => {
+// await pool.query(q, [req.query.category], (err, data) => {
 
 // if (err) return res.status(500).send(err);
 

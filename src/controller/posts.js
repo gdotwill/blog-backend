@@ -38,12 +38,12 @@ export const getPost = async (req, res) => {
 
 export const addPost = async (req, res) => {
 
-  const { title, description, cat } = req.body;
+  const { title, description, category } = req.body;
 
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
-    const newBlog = await postService.addPost(title, description, cat, imageUrl);
+    const newBlog = await postService.addPost(title, description, category, imageUrl);
     res.status(201).json({ message: 'Blog created successfully!', blog: newBlog });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });
@@ -134,10 +134,10 @@ export const updatePost = (req, res) => {
 
     // SQL query to update the post with new values.
     const q =
-      "UPDATE posts SET `title`=?,`description`=?,`img`=?,`cat`=? WHERE `id` = ? AND `uid` = ?";
+      "UPDATE posts SET `title`=?,`description`=?,`img`=?,`category`=? WHERE `id` = ? AND `uid` = ?";
 
     // An array containing the new values for the post.
-    const values = [req.body.title, req.body.description, req.body.img, req.body.cat];
+    const values = [req.body.title, req.body.description, req.body.img, req.body.category];
 
     // Execute the query using the values and post ID. If there's an error, return an error response. Otherwise, return a success response.
     query(q, [...values, postId, userInfo.id], (err, data) => {
