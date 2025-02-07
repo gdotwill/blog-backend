@@ -2,6 +2,16 @@ import pool from "../db.js";
 import jwt from "jsonwebtoken";
 import * as postService from "../services/postServices.js";
 
+
+import ImageKit from 'imagekit';
+
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+});
+
+
 export const getPosts = async (req, res) => {
   try {
       const posts = await postService.getPosts();
@@ -38,11 +48,34 @@ export const getPost = async (req, res) => {
 
 export const addPost = async (req, res) => {
 
+  console.log("FILES", req.files);  // Log the files to check if they're being received properly
+
   const { title, description, category } = req.body;
 
-  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const imageFile = req.file;
+
+  console.log("IMG", imageFile);
+
+  console.log('Received file:', req.file); // Log received file to check if it's correctly uploaded
+  console.log('Received body:', req.body); // Log the other form data (title, description)
+
+  // const image = req.files?.image; // Use express-fileupload middleware to access the file
+
+  // if (!image) {
+  //   console.log("No image uploaded")
+  //   return res.status(400).json({ message: 'No image uploaded' });
+  // }
 
   try {
+
+    const imagekitResponse = await imagekit.upload({
+      file: imageFile.buffer,  // Image file buffer
+      fileName: Date.now() + '_' + imageFile.originalname,  // Unique file name
+      folder: '/posts/',  // Optional: folder in ImageKit
+    });
+
+    const imageUrl = imagekitResponse.url;
+
     const newBlog = await postService.addPost(title, description, category, imageUrl);
     res.status(201).json({ message: 'Blog created successfully!', blog: newBlog });
   } catch (error) {

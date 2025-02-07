@@ -8,16 +8,30 @@ import cors from "cors";
 import authMiddleware from './src/controller/authMiddleware.js'; 
 import pool from './src/db.js'; 
 import bodyParser from 'body-parser';
+import multer from 'multer';
 
-// Create an instance of the Express application
+
+// import fileUpload from 'express-fileupload';  // File upload middleware
+
 const app = express();
+
+// Set up Multer to handle file uploads in memory
+const storage = multer.memoryStorage(); // Store file in memory
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // Max 10MB file size limit
+});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+// app.use(fileUpload({ 
+//   createParentPath: true,  // Create parent directories if they don't exist
+//   limits: { fileSize: 50 * 1024 * 1024 }  // Set limit for file size (e.g., 50MB)
+// }));  // Add file upload middleware here
 
 const corsOptions = {
-  // origin: 'http://localhost:3001',  // Frontend URL
-  origin: 'https://blog-woad-three-52.vercel.app',  // Frontend URL
+  origin: 'http://localhost:3001',  // Frontend URL
+  // origin: 'https://blog-woad-three-52.vercel.app',  // Frontend URL
   credentials: true,  // Allow cookies and authorization headers
 };
 
@@ -40,7 +54,7 @@ app.use(bodyParser.json());
 
 app.use(cookieParser());
 
-app.use('/uploads', express.static('uploads')); // Serve uploaded images
+// app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -68,6 +82,32 @@ app.get('/api/user', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Something went wrong. Please try again.' });
   }
 });
+
+// app.post('/api/upload', async (req, res) => {
+//   const file = req.files?.file;  // Check if a file is uploaded
+//   if (!file) {
+//     return res.status(400).json({ message: 'No file uploaded' });
+//   }
+
+//   try {
+//     // Call the UploadThing API to upload the file to the cloud
+//     const formData = new FormData();
+//     formData.append('file', file.data, file.name);  // Add the file to FormData
+    
+//     const uploadResponse = await axios.post('https://uploadthing.com/api/upload', formData, {
+//       headers: {
+//         'Authorization': `Bearer YOUR_UPLOADTHING_API_KEY`,
+//         'Content-Type': 'multipart/form-data',
+//       },
+//     });
+
+//     // Respond with the URL of the uploaded file
+//     res.json({ success: true, fileUrl: uploadResponse.data.url });
+//   } catch (error) {
+//     console.error('Error uploading file:', error);
+//     res.status(500).json({ message: 'Error uploading file' });
+//   }
+// });
 
 // Start the server and listen on port 3000
 app.listen(port, () => {

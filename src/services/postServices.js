@@ -31,20 +31,19 @@ export const getPost = async(id) => {
 
 export const addPost = async(title, description, category, imageUrl) => {
     const query = `
-    INSERT INTO posts (title, description, category, img)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *; 
-  `;
+        INSERT INTO posts (title, description, category, img)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *; 
+    `;
 
-  try {
-    const result = await pool.query(query, [title, description, category, imageUrl]);
-    // console.log('TP', result.rows[0])
-    
-    return result.rows[0]; 
-  } catch (err) {
-    console.error('Error saving post:', err);
-    throw err;  // Propagate error to controller
-  }
+    try {
+        const result = await pool.query(query, [title, description, category, imageUrl]);
+        // console.log('TP', result.rows[0]; 
+        return result.rows[0]; 
+    } catch (err) {
+        console.error('Error saving post:', err);
+        throw err;  // Propagate error to controller
+    }
 
 }
 
