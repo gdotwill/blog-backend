@@ -10,7 +10,7 @@ insert into blog_app.posts (id, title, description, img, uid, cat, date) VALUES 
     'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80', 
     '1', 
     'art', 
-    '2023-02-09'
+    '2023-02-10'
 );
 
 insert into blog_app.posts (id, title, description, img, uid, cat, date) VALUES ('2', 'Lorem ipsum dolor sit amet consectetur adipisicing elit', 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. A possimus excepturi aliquid nihil cumque ipsam facere aperiam at! Ea dolorem ratione sit debitis deserunt repellendus numquam ab vel perspiciatis corporis!', 'https://images.unsplash.com/photo-1609951651556-5334e2706168?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80', '2', 'food', '2023-02-08');
