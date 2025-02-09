@@ -54,11 +54,6 @@ export const addPost = async (req, res) => {
 
   const imageFile = req.file;
 
-  console.log("IMG", imageFile);
-
-  console.log('Received file:', req.file); // Log received file to check if it's correctly uploaded
-  console.log('Received body:', req.body); // Log the other form data (title, description)
-
   // const image = req.files?.image; // Use express-fileupload middleware to access the file
 
   // if (!image) {

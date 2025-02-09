@@ -10,9 +10,6 @@ import pool from './src/db.js';
 import bodyParser from 'body-parser';
 import multer from 'multer';
 
-
-// import fileUpload from 'express-fileupload';  // File upload middleware
-
 const app = express();
 
 // Set up Multer to handle file uploads in memory
@@ -30,8 +27,8 @@ app.use(bodyParser.json());
 // }));  // Add file upload middleware here
 
 const corsOptions = {
-  origin: 'http://localhost:3001',  // Frontend URL
-  // origin: 'https://blog-woad-three-52.vercel.app',  // Frontend URL
+  // origin: 'http://localhost:3001',  // Frontend URL
+  origin: 'https://blog-woad-three-52.vercel.app',  // Frontend URL
   credentials: true,  // Allow cookies and authorization headers
 };
 
