@@ -26,10 +26,11 @@ app.use(bodyParser.json());
 //   limits: { fileSize: 50 * 1024 * 1024 }  // Set limit for file size (e.g., 50MB)
 // }));  // Add file upload middleware here
 
+const allowedOrigins = ['http://localhost:3001', 'https://blog-woad-three-52.vercel.app'];
+
 const corsOptions = {
-  // origin: 'http://localhost:3001',  // Frontend URL
-  origin: 'https://blog-woad-three-52.vercel.app',  // Frontend URL
-  credentials: true,  // Allow cookies and authorization headers
+  origin: allowedOrigins, 
+  credentials: true,  
 };
 
 app.use((req, res, next) => {
@@ -44,14 +45,12 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-app.use(express.urlencoded({ extended: true }));  // To parse URL-encoded request bodies
+app.use(express.urlencoded({ extended: true })); 
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(cookieParser());
-
-// app.use('/uploads', express.static('uploads')); // Serve uploaded images
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -80,33 +79,6 @@ app.get('/api/user', authMiddleware, async (req, res) => {
   }
 });
 
-// app.post('/api/upload', async (req, res) => {
-//   const file = req.files?.file;  // Check if a file is uploaded
-//   if (!file) {
-//     return res.status(400).json({ message: 'No file uploaded' });
-//   }
-
-//   try {
-//     // Call the UploadThing API to upload the file to the cloud
-//     const formData = new FormData();
-//     formData.append('file', file.data, file.name);  // Add the file to FormData
-    
-//     const uploadResponse = await axios.post('https://uploadthing.com/api/upload', formData, {
-//       headers: {
-//         'Authorization': `Bearer YOUR_UPLOADTHING_API_KEY`,
-//         'Content-Type': 'multipart/form-data',
-//       },
-//     });
-
-//     // Respond with the URL of the uploaded file
-//     res.json({ success: true, fileUrl: uploadResponse.data.url });
-//   } catch (error) {
-//     console.error('Error uploading file:', error);
-//     res.status(500).json({ message: 'Error uploading file' });
-//   }
-// });
-
-// Start the server and listen on port 3000
 app.listen(port, () => {
   console.log("Connected...");
 });
